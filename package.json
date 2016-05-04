@@ -1,0 +1,14 @@
+{
+  "name": "d3-testfield",
+  "private": true,
+  "scripts": {
+    "start": "meteor run"
+  },
+  "dependencies": {
+    "d3": "^3.5.16",
+    "faker": "^3.1.0",
+    "lodash": "^4.11.2",
+    "meteor-node-stubs": "~0.2.0",
+    "moment": "^2.13.0"
+  }
+}
