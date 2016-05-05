@@ -141,7 +141,10 @@ Template.container.onRendered(function() {
 		.attr('x', function(d) {
 			return xScale(d.start)
 		})
-		.attr('y', 200)
+		.attr('y', function (d) {
+			return 480 - d.value
+		})
+		.attr('fill', 'white')
 
 	function zoomed(a, b, c) {
 		$svg.select(".x.axis").call(xAxis)
