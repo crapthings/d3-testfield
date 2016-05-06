@@ -6,47 +6,80 @@ import faker from 'faker'
 
 import d3 from 'd3'
 
-Template.container.onRendered(function () {
+Template.container.onRendered(function() {
 
-	let data = _.times(10, function () {
+	let data = _.times(10, function() {
 		return {
 			start: faker.date.past(_.random(30))
 		}
 	})
 
-	let data2 = _.times(10, function () {
+	let data2 = _.times(10, function() {
 		return {
 			start: faker.date.past(_.random(30))
 		}
 	})
 
-	let data3 = _.times(10, function () {
+	let data3 = _.times(10, function() {
 		return {
 			start: faker.date.past(_.random(30))
 		}
 	})
 
-	let data5 = _.times(10, function () {
+	let data4in = _.times(10, function() {
 		return {
 			start: faker.date.past(_.random(30)),
 			value: _.random(1000, 2000)
 		}
 	})
 
-	let minVal = d3.min(data5, function (d) {
+	data4in = _.sortBy(data4in, 'start')
+
+
+	let data4out = _.times(10, function() {
+		return {
+			start: faker.date.past(_.random(30)),
+			value: _.random(1000, 2000)
+		}
+	})
+
+	let data5 = _.times(10, function() {
+		return {
+			start: faker.date.past(_.random(30)),
+			value: _.random(1000, 2000)
+		}
+	})
+
+	let minVal = d3.min(data5, function(d) {
 		return d.value
 	})
 
-	let maxVal = d3.max(data5, function (d) {
+	let maxVal = d3.max(data5, function(d) {
 		return d.value
 	})
 
-	let minDate = d3.min(data, function (d) {
+	let minDate = d3.min(data, function(d) {
 		return d.start
 	})
 
-	let maxDate = d3.max(data, function (d) {
+	let maxDate = d3.max(data, function(d) {
 		return d.start
+	})
+
+	let minValIn = d3.min(data4in, function(d) {
+		return d.value
+	})
+
+	let maxValIn = d3.max(data4in, function(d) {
+		return d.value
+	})
+
+	let minValOut = d3.min(data4out, function(d) {
+		return d.value
+	})
+
+	let maxValOut = d3.max(data4out, function(d) {
+		return d.value
 	})
 
 	let $container = d3.select(this.find('.container'))
@@ -71,7 +104,7 @@ Template.container.onRendered(function () {
 	let $svg = $container.append('svg')
 		.attr('width', containerWidth)
 		.attr('height', containerHeight)
-		.style('background-color', 'skyblue')
+		// .style('background-color', 'skyblue')
 		.call(zoom)
 
 	let $x = $svg.append('g')
@@ -94,7 +127,7 @@ Template.container.onRendered(function () {
 		.enter()
 		.append('circle')
 		.attr('class', 'circle')
-		.attr('cx', function (d) {
+		.attr('cx', function(d) {
 			return xScale(d.start)
 		})
 		.attr('cy', 50)
@@ -108,7 +141,7 @@ Template.container.onRendered(function () {
 		.enter()
 		.append('circle')
 		.attr('class', 'circle')
-		.attr('cx', function (d) {
+		.attr('cx', function(d) {
 			return xScale(d.start)
 		})
 		.attr('cy', 100)
@@ -122,11 +155,62 @@ Template.container.onRendered(function () {
 		.enter()
 		.append('circle')
 		.attr('class', 'circle')
-		.attr('cx', function (d) {
+		.attr('cx', function(d) {
 			return xScale(d.start)
 		})
 		.attr('cy', 150)
 		.attr('r', 5)
+
+	// 4 in out
+
+	let yScale4In = d3.scale.linear()
+		.domain([minValIn, maxValIn])
+		.range([80, 0])
+		.nice()
+
+	let yAxis4In = d3.svg.axis()
+		.scale(yScale4In)
+		.orient('right')
+		.ticks(3)
+
+	let $g4 = $svg
+		.append('g')
+		.attr('class', 'g4')
+		.attr('transform', `translate(0, ${containerHeight - 180})`)
+		.call(yAxis4In)
+
+	var line4 = d3.svg.line()
+		.x(function(d) {
+			return xScale(d.start);
+		})
+		.y(function(d) {
+			return yScale4In(d.value);
+		})
+
+	var $test = $g4.append('path')
+		.attr('class', 'line4')
+		.attr('d', line4(data4in))
+		.attr('stroke', 'green')
+		.attr('stroke-width', 1)
+		.attr('shape-rendering', 'crispEdges')
+		.attr('fill-rendering', 'none')
+
+
+	let $circles4 = $g4.selectAll('circle')
+		.data(data4in)
+		.enter()
+		.append('circle')
+		.attr('class', 'circle4')
+		.attr('cx', function(d) {
+			return xScale(d.start)
+		})
+		.attr('cy', function(d) {
+			return yScale4In(d.value)
+		})
+		.attr('r', 10)
+		.attr('fill', 'red')
+
+	// 5
 
 	let yScale = d3.scale.linear()
 		.domain([minVal, maxVal])
@@ -136,6 +220,7 @@ Template.container.onRendered(function () {
 	let yAxis = d3.svg.axis()
 		.scale(yScale)
 		.orient('right')
+		.ticks(3)
 
 	let $g5 = $svg
 		.append('g')
@@ -148,29 +233,33 @@ Template.container.onRendered(function () {
 		.append('rect')
 		.attr('class', 'bar')
 		.attr('width', 10)
-		.attr('height', function (d) {
+		.attr('height', function(d) {
 			return yScale(d.value)
 		})
-		.attr('x', function (d) {
+		.attr('x', function(d) {
 			return xScale(d.start)
 		})
-		.attr('y', function (d) {
+		.attr('y', function(d) {
 			let test = yScale(d.value).toFixed()
-			console.log(80 - test)
 			return 80 - test
 		})
 		.attr('fill', 'red')
 
 	function zoomed(a, b, c) {
 		$svg.select(".x.axis").call(xAxis)
-		$svg.selectAll("circle.circle").attr('cx', function (d) {
+		$svg.selectAll("circle.circle").attr('cx', function(d) {
 			return xScale(d.start)
 		})
-		$svg.selectAll("rect.bar").attr('x', function (d) {
+
+		$svg.selectAll("circle.circle4").attr('cx', function(d) {
+			return xScale(d.start)
+		})
+
+		$test.attr('d', line4(data4in))
+
+		$svg.selectAll("rect.bar").attr('x', function(d) {
 			return xScale(d.start)
 		})
 	}
-
-	console.log(minVal, maxVal)
 
 })
