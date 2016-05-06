@@ -6,46 +6,59 @@ import faker from 'faker'
 
 import d3 from 'd3'
 
-Template.container.onRendered(function() {
+Template.container.onRendered(function () {
 
-	let data = _.times(30, function() {
+	let data = _.times(10, function () {
 		return {
 			start: faker.date.past(_.random(30))
 		}
 	})
 
-	let data2 = _.times(10, function() {
+	let data2 = _.times(10, function () {
 		return {
 			start: faker.date.past(_.random(30))
 		}
 	})
 
-	let data3 = _.times(10, function() {
+	let data3 = _.times(10, function () {
 		return {
 			start: faker.date.past(_.random(30))
 		}
 	})
 
-	let data5 = _.times(10, function() {
+	let data5 = _.times(10, function () {
 		return {
 			start: faker.date.past(_.random(30)),
-			value: _.random(700)
+			value: _.random(1000, 2000)
 		}
 	})
 
-	let minDate = d3.min(data, function(d) {
+	let minVal = d3.min(data5, function (d) {
+		return d.value
+	})
+
+	let maxVal = d3.max(data5, function (d) {
+		return d.value
+	})
+
+	let minDate = d3.min(data, function (d) {
 		return d.start
 	})
 
-	let maxDate = d3.max(data, function(d) {
+	let maxDate = d3.max(data, function (d) {
 		return d.start
 	})
 
 	let $container = d3.select(this.find('.container'))
 
+	let containerWidth = parseInt($container.style('width'), 10)
+
+	let containerHeight = 480
+
 	let xScale = d3.time.scale()
 		.domain([minDate, maxDate])
-		.range([40, 600])
+		.range([40, containerWidth - 40])
+		.nice()
 
 	let xAxis = d3.svg.axis()
 		.scale(xScale)
@@ -56,27 +69,22 @@ Template.container.onRendered(function() {
 		.on('zoom', zoomed)
 
 	let $svg = $container.append('svg')
-		.attr('width', 640)
-		.attr('height', 480)
+		.attr('width', containerWidth)
+		.attr('height', containerHeight)
 		.style('background-color', 'skyblue')
 		.call(zoom)
 
 	let $x = $svg.append('g')
 		.attr('class', 'x axis')
-		.attr('width', 600)
-		.attr('height', 440)
-		.attr('transform', 'translate(0, 0)')
 		.call(xAxis)
 
 	let $g1 = $svg
 		.append('g')
-		.attr('width', 640)
-		.attr('height', 480)
 
 	let $line = $g1
 		.append('line')
 		.attr('x1', 0)
-		.attr('x2', 640)
+		.attr('x2', containerWidth)
 		.style('stroke', 'red')
 		.style('stroke-width', 10)
 		.style('transform', 'translate(0, 50px)')
@@ -86,7 +94,7 @@ Template.container.onRendered(function() {
 		.enter()
 		.append('circle')
 		.attr('class', 'circle')
-		.attr('cx', function(d) {
+		.attr('cx', function (d) {
 			return xScale(d.start)
 		})
 		.attr('cy', 50)
@@ -94,15 +102,13 @@ Template.container.onRendered(function() {
 
 	let $g2 = $svg
 		.append('g')
-		.attr('width', 640)
-		.attr('height', 480)
 
 	let $circles2 = $g2.selectAll('circle')
 		.data(data2)
 		.enter()
 		.append('circle')
 		.attr('class', 'circle')
-		.attr('cx', function(d) {
+		.attr('cx', function (d) {
 			return xScale(d.start)
 		})
 		.attr('cy', 100)
@@ -110,50 +116,61 @@ Template.container.onRendered(function() {
 
 	let $g3 = $svg
 		.append('g')
-		.attr('width', 640)
-		.attr('height', 480)
 
 	let $circles3 = $g3.selectAll('circle')
 		.data(data3)
 		.enter()
 		.append('circle')
 		.attr('class', 'circle')
-		.attr('cx', function(d) {
+		.attr('cx', function (d) {
 			return xScale(d.start)
 		})
 		.attr('cy', 150)
 		.attr('r', 5)
 
+	let yScale = d3.scale.linear()
+		.domain([minVal, maxVal])
+		.range([80, 0])
+		.nice()
+
+	let yAxis = d3.svg.axis()
+		.scale(yScale)
+		.orient('right')
+
 	let $g5 = $svg
 		.append('g')
-		.attr('width', 640)
-		.attr('height', 480)
+		.attr('transform', `translate(0, ${containerHeight - 80})`)
+		.call(yAxis)
 
-	let $bars = $g3.selectAll('rect')
+	let $bars = $g5.selectAll('rect')
 		.data(data5)
 		.enter()
 		.append('rect')
 		.attr('class', 'bar')
 		.attr('width', 10)
 		.attr('height', function (d) {
-			return (d.value)
+			return yScale(d.value)
 		})
-		.attr('x', function(d) {
+		.attr('x', function (d) {
 			return xScale(d.start)
 		})
 		.attr('y', function (d) {
-			return 480 - d.value
+			let test = yScale(d.value).toFixed()
+			console.log(80 - test)
+			return 80 - test
 		})
-		.attr('fill', 'white')
+		.attr('fill', 'red')
 
 	function zoomed(a, b, c) {
 		$svg.select(".x.axis").call(xAxis)
-		$svg.selectAll("circle.circle").attr('cx', function(d) {
+		$svg.selectAll("circle.circle").attr('cx', function (d) {
 			return xScale(d.start)
 		})
-		$svg.selectAll("rect.bar").attr('x', function(d) {
+		$svg.selectAll("rect.bar").attr('x', function (d) {
 			return xScale(d.start)
 		})
 	}
+
+	console.log(minVal, maxVal)
 
 })
