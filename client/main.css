@@ -1,14 +1,39 @@
 /* CSS declarations go here */
+
 path {
-    stroke: steelblue;
-    stroke-width: 2;
+    stroke: black;
+    stroke-width: 1;
     fill: none;
 	shape-rendering: auto;
 }
 
-.line4 {
+.axis line {
     fill: none;
-    stroke: grey;
+    stroke: black;
+}
+
+.tick line{
+    opacity: 0.1;
+}
+
+.x.axis path {
+    opacity: 0.1;
+}
+
+.incomingLine {
+    fill: none;
+    stroke: yellow;
     stroke-width: 2;
     shape-rendering: auto;
+}
+
+.outcomingLine {
+    fill: none;
+    stroke: orange;
+    stroke-width: 2;
+    shape-rendering: auto;
+}
+
+.circle text {
+    font-family: 'FontAwesome';
 }
